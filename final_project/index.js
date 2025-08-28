@@ -22,13 +22,11 @@ app.use(
 // Authentication middleware for customer routes
 app.use("/customer/auth/*", function auth(req, res, next) {
   if (req.session.authorization) {
-    // Extract accessToken
     let token = req.session.authorization["accessToken"];
-    // Verify JWT
     jwt.verify(token, "access", (err, user) => {
       if (!err) {
-        req.user = user; // Attach user payload to request
-        next(); // Continue to route
+        req.user = user;
+        next();
       } else {
         return res.status(403).json({ message: "User not authenticated" });
       }
@@ -41,6 +39,11 @@ app.use("/customer/auth/*", function auth(req, res, next) {
 // Routes
 app.use("/customer", customer_routes);
 app.use("/", genl_routes);
+
+// Default 404 handler (optional but helpful)
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
 
 // Start server
 app.listen(PORT, "0.0.0.0", (err) => {
